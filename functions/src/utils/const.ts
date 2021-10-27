@@ -1,6 +1,9 @@
-const usersCollection = 'users'
-const usernamesUnavaible = 'usernames_unavaible'
+const usersCollection = 'users';
+const usernamesUnavaibleCollection = 'usernames_unavaible';
+const callsCollection = 'calls';
+
 export {
     usersCollection,
-    usernamesUnavaible
+    usernamesUnavaibleCollection,
+    callsCollection
 }
