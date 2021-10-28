@@ -1,9 +1,8 @@
 // NOTE: If this file reach the 200 lines seperate each function to be more readable.
 import * as  admin from "firebase-admin";
 import * as functions from "firebase-functions";
-import encryptPassword from "./utils/utils";
+import encryptPassword from "./utils/bcrypt";
 import { CallState } from "./utils/enums";
-
 
 import {
     callsCollection,
@@ -28,7 +27,7 @@ exports.onCreateUser = firestore.document(`/${usersCollection}/{documentId}`)
         const username = data.username;
         encryptPassword(password, (err, newPassword) => {
             if (!err)
-                return snap.ref.update({ newPassword });
+                return snap.ref.update({ password: newPassword });
         })
         // Add to the collections usernames this username as unavaible
         snap.ref.firestore.collection(usernamesUnavaibleCollection).add({ username });
@@ -40,13 +39,16 @@ exports.onCreateUser = firestore.document(`/${usersCollection}/{documentId}`)
 exports.onCreateCall = firestore.document(`/${callsCollection}/{documentId}`)
     .onCreate(async (snap, _) => {
 
+        // Reference to the this document
+        const ref = snap.ref;
+
         const changeCallState = (callState: CallState) => {
-            return snap.ref.update({ callState });
+            return ref.update({ callState });
         };
 
         // Reference: https://stackoverflow.com/a/64720633/10942018
         // Set a timestamp for this call and this allow to search by datetime in the collection
-        snap.ref.update({ timestamp: admin.firestore.FieldValue.serverTimestamp() });
+        ref.update({ timestamp: admin.firestore.FieldValue.serverTimestamp() });
 
 
         const data = snap.data();
@@ -89,9 +91,20 @@ exports.onCreateCall = firestore.document(`/${callsCollection}/{documentId}`)
         delete caller.password;
         delete receiver.password;
 
-        // 2. Update the call document with USERS data
-        snap.ref.update({ caller, receiver });
+        // Delete username_query
+        delete caller.username_query;
+        delete receiver.username_query;
 
+        // 2. Update the call document with USERS data
+        ref.update({ caller, receiver });
+
+        // Send notifications to the users though the FCM
+        const tokenFCMReceiver = receiver.tokenFCM;
+
+        if (!tokenFCMReceiver) {
+            logger.error(`The Receiver don't have a tokenFCM. Please review the following ID: ${participantIDReceiver}`);
+            return changeCallState(CallState.Finalized);
+        }
         // NOTE: Or return a Promise
         return 0;
     });

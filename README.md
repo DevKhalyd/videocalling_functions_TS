@@ -47,3 +47,14 @@ functions.logger.log("Adding to a new collection");
 # NOTE
 
 According to the documentation of Cloud functions in each function should return a promise or a zero to work properly.
+
+## Notifications
+
+If can, add the image to the notification https://firebase.google.com/docs/reference/fcm/rest/v1/projects.messages#Notification
+
+Doc about the payload of each notifications:
+https://firebase.google.com/docs/cloud-messaging/concept-options#notifications
+
+Doc aboutt the life span of the notification: https://firebase.google.com/docs/cloud-messaging/concept-options#ttl
+
+So basically the notification will be sent to the user for a certain time with the high priorioty and a payload to know where go.
