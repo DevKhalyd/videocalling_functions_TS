@@ -1,9 +1,11 @@
-// NOTE: If this file reach the 200 lines seperate each function to be more readable.
+// NOTE: If this file reach the 200 lines seperate each function to be more readable.//
+
 import * as  admin from "firebase-admin";
 import * as functions from "firebase-functions";
-import encryptPassword from "./utils/bcrypt";
+import encryptPassword from "./features/bcrypt";
 import { CallState } from "./utils/enums";
-
+import { sendVideoCallNotification } from "./features/fcm";
+import { assert } from "./utils/asserts";
 import {
     callsCollection,
     usernamesUnavaibleCollection,
@@ -35,13 +37,14 @@ exports.onCreateUser = firestore.document(`/${usersCollection}/{documentId}`)
         return snap.ref.set({ username_query: username.split('') }, { merge: true });
     });
 
-
+// Handle the states and creates the data necessary for the call between the two users.F
 exports.onCreateCall = firestore.document(`/${callsCollection}/{documentId}`)
     .onCreate(async (snap, _) => {
 
         // Reference to the this document
         const ref = snap.ref;
 
+        // Change the state of the call.
         const changeCallState = (callState: CallState) => {
             return ref.update({ callState });
         };
@@ -50,7 +53,7 @@ exports.onCreateCall = firestore.document(`/${callsCollection}/{documentId}`)
         // Set a timestamp for this call and this allow to search by datetime in the collection
         ref.update({ timestamp: admin.firestore.FieldValue.serverTimestamp() });
 
-
+        // Get the data of the call
         const data = snap.data();
 
         // TODO: Create a functions that changes the state of the call to finalize because the data given was incorrect
@@ -69,6 +72,9 @@ exports.onCreateCall = firestore.document(`/${callsCollection}/{documentId}`)
 
         const participantIDCaller = participantsIds[0];
         const participantIDReceiver = participantsIds[1];
+
+        //TODO Get the Agora FCM token and the channel name
+
 
         /// Get each user to save in the call collection
         const refFirestore = snap.ref.firestore;
@@ -105,6 +111,20 @@ exports.onCreateCall = firestore.document(`/${callsCollection}/{documentId}`)
             logger.error(`The Receiver don't have a tokenFCM. Please review the following ID: ${participantIDReceiver}`);
             return changeCallState(CallState.Finalized);
         }
-        // NOTE: Or return a Promise
+
+        const idCall = snap.id;
+        const callerUserName = caller.username;
+        const callerImageUrl = caller.imageUrl;
+
+        assert(idCall, 'idCall is undefined');
+
+        // Send the notification to the receiver
+        const wasSent = await sendVideoCallNotification(tokenFCMReceiver, idCall, callerUserName, callerImageUrl);
+
+        if (!wasSent) {
+            logger.error(`The notification was not sent to the Receiver. Might be because the receiver is offline`);
+            return changeCallState(CallState.Finalized);
+        }
+
         return 0;
     });

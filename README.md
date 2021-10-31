@@ -48,7 +48,7 @@ functions.logger.log("Adding to a new collection");
 
 According to the documentation of Cloud functions in each function should return a promise or a zero to work properly.
 
-## Notifications
+# Notifications
 
 If can, add the image to the notification https://firebase.google.com/docs/reference/fcm/rest/v1/projects.messages#Notification
 
@@ -58,3 +58,21 @@ https://firebase.google.com/docs/cloud-messaging/concept-options#notifications
 Doc aboutt the life span of the notification: https://firebase.google.com/docs/cloud-messaging/concept-options#ttl
 
 So basically the notification will be sent to the user for a certain time with the high priorioty and a payload to know where go.
+
+# Notifications IOS (a little tricky)
+
+Basically I have to manage the time in UNIX epoch. So I should get the current time and add 5 seconds to the current time. This because APN don't store the notification. Because a videocall notifications is not for always.
+
+APNS DOCS:
+https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/sending_notification_requests_to_apns
+
+UNIX CONVERTER:
+
+https://www.epochconverter.com/
+
+Check the lifespan
+
+## How to document Typescript
+
+https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html
+
