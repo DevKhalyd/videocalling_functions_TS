@@ -24,11 +24,15 @@ https://firebase.google.com/docs/functions/organize-functions
 
 https://stackoverflow.com/questions/43486278/how-do-i-structure-cloud-functions-for-firebase-to-deploy-multiple-functions-fro
 
+# Env variables
+
+https://cloud.google.com/functions/docs/configuring/env-var#functions-deploy-command-nodejs
+
 # Reference
 
 TS source: https://firebase.google.com/docs/functions/typescript#using_an_existing_typescript_project
 
-Note: Check the part of predeply for TS
+Note: Check the part of predeploy for TS
 
 # Logs
 
@@ -75,4 +79,3 @@ Check the lifespan
 ## How to document Typescript
 
 https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html
-

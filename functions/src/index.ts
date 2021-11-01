@@ -6,11 +6,13 @@ import encryptPassword from "./features/bcrypt";
 import { CallState } from "./utils/enums";
 import { sendVideoCallNotification } from "./features/fcm";
 import { assert } from "./utils/asserts";
+
 import {
     callsCollection,
     usernamesUnavaibleCollection,
     usersCollection,
 } from "./utils/const";
+import createTokenandChannel from "./features/agora";
 
 
 // The Firebase Admin SDK to access Firestore.
@@ -111,12 +113,11 @@ exports.onCreateCall = firestore.document(`/${callsCollection}/{documentId}`)
             logger.error(`The Receiver don't have a tokenFCM. Please review the following ID: ${participantIDReceiver}`);
             return changeCallState(CallState.Finalized);
         }
-
         const idCall = snap.id;
         const callerUserName = caller.username;
         const callerImageUrl = caller.imageUrl;
 
-        assert(idCall, 'idCall is undefined');
+        assert(idCall, 'idCall has a not valid value');
 
         // Send the notification to the receiver
         const wasSent = await sendVideoCallNotification(tokenFCMReceiver, idCall, callerUserName, callerImageUrl);
@@ -126,5 +127,10 @@ exports.onCreateCall = firestore.document(`/${callsCollection}/{documentId}`)
             return changeCallState(CallState.Finalized);
         }
 
-        return 0;
+        // Update the call with the token and the channel name if everything was ok
+        const { token, channel } = createTokenandChannel();
+
+        ref.update({ token, channel });
+        // The Caller and Receiver are avaible
+        return changeCallState(CallState.Calling);
     });
