@@ -1,11 +1,8 @@
-// NOTE: If this file reach the 200 lines seperate each function to be more readable.//
-
 import * as  admin from "firebase-admin";
 import * as functions from "firebase-functions";
 import encryptPassword from "./features/bcrypt";
 import { CallState } from "./utils/enums";
 import { sendVideoCallNotification } from "./features/fcm";
-import { assert } from "./utils/asserts";
 
 import {
     callsCollection,
@@ -48,7 +45,8 @@ exports.onCreateCall = firestore.document(`/${callsCollection}/{documentId}`)
 
         // Change the state of the call.
         const changeCallState = (callState: CallState) => {
-            return ref.update({ callState });
+            // Nested update
+            return ref.update({ 'callState.type': callState });
         };
 
         // Reference: https://stackoverflow.com/a/64720633/10942018
@@ -57,8 +55,6 @@ exports.onCreateCall = firestore.document(`/${callsCollection}/{documentId}`)
 
         // Get the data of the call
         const data = snap.data();
-
-        // TODO: Create a functions that changes the state of the call to finalize because the data given was incorrect
 
         // 1. Update the call document with USERS data
         const participantsIds = data.participantsIds as string[];
@@ -74,9 +70,6 @@ exports.onCreateCall = firestore.document(`/${callsCollection}/{documentId}`)
 
         const participantIDCaller = participantsIds[0];
         const participantIDReceiver = participantsIds[1];
-
-        //TODO Get the Agora FCM token and the channel name
-
 
         /// Get each user to save in the call collection
         const refFirestore = snap.ref.firestore;
@@ -116,8 +109,6 @@ exports.onCreateCall = firestore.document(`/${callsCollection}/{documentId}`)
         const idCall = snap.id;
         const callerUserName = caller.username;
         const callerImageUrl = caller.imageUrl;
-
-        assert(idCall, 'idCall has a not valid value');
 
         // Send the notification to the receiver
         const wasSent = await sendVideoCallNotification(tokenFCMReceiver, idCall, callerUserName, callerImageUrl);

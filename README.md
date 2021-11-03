@@ -8,7 +8,7 @@ Previous project: https://github.com/DevKhalyd/videocalling_functions
 
 REMEMBER: Always when a change occurs in the TS code. Run the command tsc to transpilate the code to JS and execute the changes in the current environment.
 
-# Commands
+# Commands (Run inside functions)
 
 **Serve the server:** `npm run server` Run this command inside functions folder
 
@@ -17,6 +17,8 @@ REMEMBER: Always when a change occurs in the TS code. Run the command tsc to tra
 `firebase emulators:start --only functions` - Add firestore to execute as well
 
 **See all the commands avaible:** https://firebase.google.com/docs/emulator-suite/install_and_configure
+
+`npm run deploy` Deploy the functions to the cloud
 
 # Organize files
 
