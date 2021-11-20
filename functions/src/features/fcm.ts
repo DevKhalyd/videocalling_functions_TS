@@ -2,26 +2,27 @@ import { messaging } from "firebase-admin";
 import { logger } from "firebase-functions/v1";
 import { videocallingNotificationDurationMs } from "../utils/const";
 
-/// Transform to an image with background color from the backend...
+/// Transform to an image with background color with cloud functions
 const _image = 'https://lacollege.edu/wp-content/uploads/2021/09/blank-profile-picture.png';
 
 /**
  * @param {string} token - FCM token provided by the Call object
  * @param {string} idVideocall - ID of the videocall createed by Agora
- * @param {string} name - Name of the user who is calling to the other user
+ * @param {string} username - Username of the user who is calling to the other user
  * @param {string | undefined} imageUrl - Image URL of the user who is calling to the other user
  * @returns {Promise<boolean>} Returns true if the message was sent successfully
- * 
  */
 function sendVideoCallNotification(
     token: string,
     idVideocall: string,
-    name: string,
+    username: string,
     imageUrl: string | undefined,
 ): Promise<boolean> {
 
     const data = {
-        idVideocall
+        idVideocall,
+        username,
+        image: imageUrl ?? _image,
     }
 
     const android: messaging.AndroidConfig = {
@@ -33,16 +34,9 @@ function sendVideoCallNotification(
     // NOTE: Check the config for this one.
     //const apns: messaging.ApnsConfig = {}
 
-    const notification: messaging.Notification = {
-        // Send just the data with high priority. Don't show the notification
-        title: "Call incoming...",
-        body: `${name} wants to talk with you.`,
-        imageUrl: imageUrl || _image
-    }
-
+    // Using: (Data messages)https://firebase.google.com/docs/cloud-messaging/concept-options#data_messages
     const message: messaging.Message = {
         token,
-        notification,
         android,
         data,
         //apns
@@ -52,7 +46,7 @@ function sendVideoCallNotification(
         logger.info(`Message sent successfully. ID: ${id}`);
         return true;
     }).catch(() => {
-        logger.info('Message doesn"t sent successfully');
+        logger.info("Message doesn't sent successfully");
         return false;
     });
 }

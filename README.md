@@ -56,8 +56,6 @@ According to the documentation of Cloud functions in each function should return
 
 # Notifications
 
-If can, add the image to the notification https://firebase.google.com/docs/reference/fcm/rest/v1/projects.messages#Notification
-
 Doc about the payload of each notifications:
 https://firebase.google.com/docs/cloud-messaging/concept-options#notifications
 

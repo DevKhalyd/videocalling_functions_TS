@@ -125,3 +125,18 @@ exports.onCreateCall = firestore.document(`/${callsCollection}/{documentId}`)
         // The Caller and Receiver are avaible
         return changeCallState(CallState.Calling);
     });
+
+/* Just for testing purposes
+// http://localhost:5001/videocalling-flutter-26813/us-central1/test
+// Take the text parameter passed to this HTTP endpoint and insert it into
+// Firestore under the path /messages/:documentId/original
+exports.test = functions.https.onRequest(async (_, res) => {
+    // Send back a message that we've successfully written the message
+    //  await getLatestCryptoResponse();
+    const token = 'c390aPiMSxyf0fJAiVc-FR:APA91bHuIB2Mkw-t473hIMVv1HeyKyeTpvOBwqhjN-Z9ZNyGmG3jm7P-iPxNF98QcqWPgaV__2_3VGvkBzGbF2dqzFAb2UUz1npFQM6L8JbvPUpJ65Ey-jj8-WSF1mmYBRFLPcp__KIw';
+    const idVideocall = 'asdsad';
+    const username = 'username';
+    sendVideoCallNotification(token, idVideocall, username, undefined).then(() => {
+        res.send("Process ended");
+    })
+});*/
