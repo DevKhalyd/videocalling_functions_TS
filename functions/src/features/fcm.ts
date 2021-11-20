@@ -2,6 +2,7 @@ import { messaging } from "firebase-admin";
 import { logger } from "firebase-functions/v1";
 import { videocallingNotificationDurationMs } from "../utils/const";
 
+/// Transform to an image with background color from the backend...
 const _image = 'https://lacollege.edu/wp-content/uploads/2021/09/blank-profile-picture.png';
 
 /**
@@ -33,6 +34,7 @@ function sendVideoCallNotification(
     //const apns: messaging.ApnsConfig = {}
 
     const notification: messaging.Notification = {
+        // Send just the data with high priority. Don't show the notification
         title: "Call incoming...",
         body: `${name} wants to talk with you.`,
         imageUrl: imageUrl || _image

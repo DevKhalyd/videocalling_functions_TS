@@ -65,7 +65,11 @@ Doc aboutt the life span of the notification: https://firebase.google.com/docs/c
 
 So basically the notification will be sent to the user for a certain time with the high priorioty and a payload to know where go.
 
-# Notifications IOS (a little tricky)
+## Notification Types
+
+https://firebase.google.com/docs/cloud-messaging/concept-options#notifications_and_data_messages
+
+## Notifications IOS (a little tricky)
 
 Basically I have to manage the time in UNIX epoch. So I should get the current time and add 5 seconds to the current time. This because APN don't store the notification. Because a videocall notifications is not for always.
 

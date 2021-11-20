@@ -36,7 +36,7 @@ exports.onCreateUser = firestore.document(`/${usersCollection}/{documentId}`)
         return snap.ref.set({ username_query: username.split('') }, { merge: true });
     });
 
-// Handle the states and creates the data necessary for the call between the two users.F
+// Handle the states and creates the data necessary for the call between the two users.
 exports.onCreateCall = firestore.document(`/${callsCollection}/{documentId}`)
     .onCreate(async (snap, _) => {
 
