@@ -3,9 +3,17 @@ enum CallState {
     Calling,
     OnCall,
     Lost,
-    Finalized
+    Finalized,
 }
 
+enum CallType {
+    Outcoming,
+    Incoming,
+}
+
+
+
 export {
-    CallState
+    CallState,
+    CallType
 }

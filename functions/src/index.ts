@@ -1,11 +1,12 @@
 import * as  admin from "firebase-admin";
 import * as functions from "firebase-functions";
 import encryptPassword from "./features/bcrypt";
-import { CallState } from "./utils/enums";
+import { CallState, CallType } from "./utils/enums";
 import { sendVideoCallNotification } from "./features/fcm";
 
 import {
     callsCollection,
+    getHistoryCollection,
     usernamesUnavaibleCollection,
     usersCollection,
 } from "./utils/const";
@@ -32,7 +33,7 @@ exports.onCreateUser = firestore.document(listenToCollection)
             if (!err)
                 return snap.ref.update({ password: newPassword });
         })
-        // Add to the collections usernames this username as unavaible
+        // Add to the collections usernames because now this username is unavaible
         snap.ref.firestore.collection(usernamesUnavaibleCollection).add({ username });
 
         return snap.ref.set({ username_query: username.split('') }, { merge: true });
@@ -131,32 +132,102 @@ exports.onCreateCall = firestore.document(`/${callsCollection}/{documentId}`)
 /// Listen to the calls when are updated.
 exports.onUpdateCall = firestore.document(listenToCollection)
     .onUpdate(async (change, _) => {
+
         /**
-         * The call with the latest information
+         * Show an error and terminates the process.
+         * 
+         * @param error - The error that occurred
+         * @returns 0 to allow the functions works properly
+         */
+        const showError = (error: string) => {
+            logger.error(error);
+            return 0;
+        };
+
+        /**
+         * The call object with the latest information
          */
         const newData = change.after.data();
 
         const callState = newData.callState.type;
 
-        if (!callState) {
-            logger.error(`The callState is not defined: ${callState}`);
-            return 0;
+        if (!callState)
+            return showError(`The callState is not defined: ${callState}`);
+
+        if (callState <= CallState.OnCall)
+            return showError(`The callState is not Finalized or Lost: ${callState}. Not update needed.`);
+
+        if (callState > CallState.Finalized)
+            return showError(`The callState is not a correct value: ${callState}. Must be between 3 and 4.`);
+
+        /// The participants in this conversation
+        const participantsIds = newData.participantsIds as string[] | undefined;
+
+        if (participantsIds?.length !== 2)
+            return showError('The participantsIds is not defined. This error should not happen, because the application always should contains the IDs');
+
+        /// Check the flowchart to see how works...
+        /// Help to update each user with the HistoryCall
+        const participantIDCaller = participantsIds[0];
+        const participantIDReceiver = participantsIds[1];
+
+        /// Shared Data
+        const date = newData.date;
+        // If it{s videocall or call}
+        // NOTE: Use: conversationType.type as string
+        const conversationType = newData.conversationType.type as number;
+
+        /// Caller Data
+        const callerFullName = newData.caller.fullname;
+        const callerImageUrl = newData.caller.imageUrl;
+        const callerUsername = newData.caller.username;
+        const callerCallType = CallType.Outcoming;
+
+        /// Receiver Data
+        const receiverFullName = newData.receiver.fullname;
+        const receiverImageUrl = newData.receiver.imageUrl;
+        const receiverUsername = newData.receiver.username;
+        const receiverCallType = CallType.Incoming;
+
+        const getHistoryCallAsObject = (
+            imgUrl: string | undefined,
+            fullname: string,
+            username: string,
+            date: string,
+            conversationType: number,
+            callType: CallType
+        ) => {
+            return {
+                imgUrl,
+                fullname,
+                username,
+                date,
+                'conversationType.type': conversationType,
+                'callType.type': callType,
+            }
         }
 
-        if (callState <= CallState.OnCall) {
-            logger.info(`The callState is not Finalized or Lost: ${callState}. Not update needed.`);
-            return 0;
-        }
+        const callerObject = getHistoryCallAsObject(
+            callerImageUrl,
+            callerFullName,
+            callerUsername,
+            date,
+            conversationType,
+            callerCallType);
 
-        if (callState > CallState.Finalized) {
-            logger.error(`The callState is not a correct value: ${callState}. Must be between 3 and 4.`);
-            return 0;
-        }
+        const receiverObject = getHistoryCallAsObject(
+            receiverImageUrl,
+            receiverFullName,
+            receiverUsername,
+            date,
+            conversationType,
+            receiverCallType);
 
-
-
-
-
+        const callerCollection = change.after.ref.firestore.collection(getHistoryCollection(participantIDCaller));
+        const receiverCollection = change.after.ref.firestore.collection(getHistoryCollection(participantIDReceiver));
+        // const callerHistoryCallsCollection = change.
+        callerCollection.add(callerObject);
+        return receiverCollection.add(receiverObject);
     });
 
 /* Just for testing purposes

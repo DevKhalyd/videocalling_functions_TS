@@ -1,6 +1,7 @@
 const usersCollection = 'users';
 const usernamesUnavaibleCollection = 'usernames_unavaible';
 const callsCollection = 'calls';
+const historyCallsCollection = 'history_calls';
 
 /*
 On Android and Web/JavaScript, you can specify the maximum 
@@ -18,9 +19,20 @@ messages that can't be delivered immediately are discarded.
 */
 const videocallingNotificationDurationMs = 0;
 
+/**
+ * Use to get the historyCalls path and do some actions on it
+ * 
+ * @param doc The id of the document to update (User)
+ * @returns The path of the document to update
+ */
+function getHistoryCollection(doc: string): string {
+    return `${usersCollection}/${doc}/${historyCallsCollection}`;
+}
+
 export {
     usersCollection,
     usernamesUnavaibleCollection,
     callsCollection,
-    videocallingNotificationDurationMs
+    videocallingNotificationDurationMs,
+    getHistoryCollection
 }
