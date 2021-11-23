@@ -17,11 +17,13 @@ admin.initializeApp();
 
 const firestore = functions.firestore;
 const logger = functions.logger;
+/// Listen to the users collection
+const listenToCollection = `/${callsCollection}/{documentId}`;
 
 // When a new user is created in the collections $usersCollection the password is encrypted.
 // Also  adds a new document to $usernamesUnavaibleCollection collection to identify if the username is duplicated.
 // Lastly, add a new param in the user to search for array and fetch the user that contains that characters.
-exports.onCreateUser = firestore.document(`/${usersCollection}/{documentId}`)
+exports.onCreateUser = firestore.document(listenToCollection)
     .onCreate((snap, _) => {
         const data = snap.data();
         const password = data.password;
@@ -124,6 +126,37 @@ exports.onCreateCall = firestore.document(`/${callsCollection}/{documentId}`)
         ref.update({ token, channel });
         // The Caller and Receiver are avaible
         return changeCallState(CallState.Calling);
+    });
+
+/// Listen to the calls when are updated.
+exports.onUpdateCall = firestore.document(listenToCollection)
+    .onUpdate(async (change, _) => {
+        /**
+         * The call with the latest information
+         */
+        const newData = change.after.data();
+
+        const callState = newData.callState.type;
+
+        if (!callState) {
+            logger.error(`The callState is not defined: ${callState}`);
+            return 0;
+        }
+
+        if (callState <= CallState.OnCall) {
+            logger.info(`The callState is not Finalized or Lost: ${callState}. Not update needed.`);
+            return 0;
+        }
+
+        if (callState > CallState.Finalized) {
+            logger.error(`The callState is not a correct value: ${callState}. Must be between 3 and 4.`);
+            return 0;
+        }
+
+
+
+
+
     });
 
 /* Just for testing purposes

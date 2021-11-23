@@ -11,6 +11,5 @@ function main() {
     const username = 'user';
     sendVideoCallNotification(token, idVideocall, username, undefined);
 }
-
 main();
 */

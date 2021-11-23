@@ -1,3 +1,7 @@
+# TODO
+
+When a video is updated to finalized or lost add to calls history to know what happens (Cloud functions)
+
 # VideoCallingFunctions TS
 
 Reacts to the changes in the database.
