@@ -2,6 +2,14 @@
 
 When a video is updated to finalized or lost add to calls history to know what happens (Cloud functions)
 
+# Errors
+
+Test Firebase Auth Services:
+
+//https://stackoverflow.com/questions/67173476/firebase-emulator-with-real-devices
+
+When uses real devices you need to put the complete address of your host.
+
 # VideoCallingFunctions TS
 
 Reacts to the changes in the database.
