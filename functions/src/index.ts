@@ -24,7 +24,7 @@ const listenToCollection = `/${callsCollection}/{documentId}`;
 // When a new user is created in the collections $usersCollection the password is encrypted.
 // Also  adds a new document to $usernamesUnavaibleCollection collection to identify if the username is duplicated.
 // Lastly, add a new param in the user to search for array and fetch the user that contains that characters.
-exports.onCreateUser = firestore.document(listenToCollection)
+exports.onCreateUser = firestore.document(`/${usersCollection}/{documentId}`)
     .onCreate((snap, _) => {
         const data = snap.data();
         const password = data.password;
@@ -40,7 +40,7 @@ exports.onCreateUser = firestore.document(listenToCollection)
     });
 
 // Handle the states and creates the data necessary for the call between the two users.
-exports.onCreateCall = firestore.document(`/${callsCollection}/{documentId}`)
+exports.onCreateCall = firestore.document(listenToCollection)
     .onCreate(async (snap, _) => {
 
         // Reference to the this document
@@ -151,11 +151,12 @@ exports.onUpdateCall = firestore.document(listenToCollection)
 
         const callState = newData.callState.type;
 
-        if (!callState)
+        if (callState === undefined)
             return showError(`The callState is not defined: ${callState}`);
 
-        if (callState <= CallState.OnCall)
-            return showError(`The callState is not Finalized or Lost: ${callState}. Not update needed.`);
+        /// Neither the state lost nor finalized yet
+        if (callState < CallState.Lost)
+            return 0;
 
         if (callState > CallState.Finalized)
             return showError(`The callState is not a correct value: ${callState}. Must be between 3 and 4.`);
@@ -202,8 +203,8 @@ exports.onUpdateCall = firestore.document(listenToCollection)
                 fullname,
                 username,
                 date,
-                'conversationType.type': conversationType,
-                'callType.type': callType,
+                'conversationType': { type: conversationType },
+                'callType': { type: callType },
             }
         }
 
@@ -225,7 +226,8 @@ exports.onUpdateCall = firestore.document(listenToCollection)
 
         const callerCollection = change.after.ref.firestore.collection(getHistoryCollection(participantIDCaller));
         const receiverCollection = change.after.ref.firestore.collection(getHistoryCollection(participantIDReceiver));
-        // const callerHistoryCallsCollection = change.
+
+        logger.info(`Updating the history of the caller and receiver}`);
         callerCollection.add(callerObject);
         return receiverCollection.add(receiverObject);
     });

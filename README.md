@@ -1,6 +1,6 @@
 # TODO
 
-When a video is updated to finalized or lost add to calls history to know what happens (Cloud functions)
+Test the functions.
 
 # Errors
 
