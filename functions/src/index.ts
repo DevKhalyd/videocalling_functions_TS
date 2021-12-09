@@ -6,10 +6,10 @@ import { sendVideoCallNotification } from "./features/fcm";
 
 import {
     callsCollection,
-    conversations,
+    conversationsCollection,
     existsInArray,
     getHistoryCollection,
-    messages,
+    messagesCollection,
     usernamesUnavaibleCollection,
     usersCollection,
 } from "./utils/utils";
@@ -25,7 +25,7 @@ const logger = functions.logger;
 const listenToCollection = `/${callsCollection}/{documentId}`;
 /// Listen when a new messages is sent.
 /// Basically listen a collection inside another collection
-const listenMessagesCollection = `/${conversations}/{documentId}/${messages}/{documentId}`;
+const listenMessagesCollection = `/${conversationsCollection}/{documentId}/${messagesCollection}/{documentId}`;
 
 // When a new user is created in the collections $usersCollection the password is encrypted.
 // Also  adds a new document to $usernamesUnavaibleCollection collection to identify if the username is duplicated.
@@ -269,7 +269,7 @@ exports.onCreateMessages = firestore.document(listenMessagesCollection)
 
         const documentId = components[1];
 
-        const collection = snap.ref.firestore.collection(conversations);
+        const collection = snap.ref.firestore.collection(conversationsCollection);
 
         const doc = await collection.doc(documentId).get();
 
@@ -307,7 +307,7 @@ exports.onCreateMessages = firestore.document(listenMessagesCollection)
         const userIDB = idsUser[1];
 
         // TODO: Send a notification (Get the tokens of the users)
-        
+
 
 
 

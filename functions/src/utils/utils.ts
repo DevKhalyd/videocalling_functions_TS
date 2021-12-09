@@ -1,7 +1,7 @@
 const usersCollection = 'users';
 const usernamesUnavaibleCollection = 'usernames_unavaible';
-const conversations = 'conversations';
-const messages = 'messages';
+const conversationsCollection = 'conversations';
+const messagesCollection = 'messages';
 const callsCollection = 'calls';
 const historyCallsCollection = 'history_calls';
 
@@ -40,8 +40,8 @@ export {
     usernamesUnavaibleCollection,
     callsCollection,
     videocallingNotificationDurationMs,
-    conversations,
-    messages,
+    conversationsCollection,
+    messagesCollection,
     getHistoryCollection,
     existsInArray
 }
