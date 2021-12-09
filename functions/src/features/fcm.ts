@@ -1,6 +1,6 @@
 import { messaging } from "firebase-admin";
 import { logger } from "firebase-functions/v1";
-import { videocallingNotificationDurationMs } from "../utils/const";
+import { videocallingNotificationDurationMs } from "../utils/utils";
 
 /// Transform to an image with background color with cloud functions
 const _image = 'https://lacollege.edu/wp-content/uploads/2021/09/blank-profile-picture.png';
@@ -42,8 +42,7 @@ function sendVideoCallNotification(
         //apns
     }
 
-    return messaging().send(message).then(id => {
-        logger.info(`Message sent successfully. ID: ${id}`);
+    return messaging().send(message).then(_ => {
         return true;
     }).catch(() => {
         logger.info("Message doesn't sent successfully");

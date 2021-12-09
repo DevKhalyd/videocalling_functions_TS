@@ -6,10 +6,13 @@ import { sendVideoCallNotification } from "./features/fcm";
 
 import {
     callsCollection,
+    conversations,
+    existsInArray,
     getHistoryCollection,
+    messages,
     usernamesUnavaibleCollection,
     usersCollection,
-} from "./utils/const";
+} from "./utils/utils";
 import createTokenandChannel from "./features/agora";
 
 
@@ -18,8 +21,11 @@ admin.initializeApp();
 
 const firestore = functions.firestore;
 const logger = functions.logger;
-/// Listen to the users collection
+/// Listen to the calls collection
 const listenToCollection = `/${callsCollection}/{documentId}`;
+/// Listen when a new messages is sent.
+/// Basically listen a collection inside another collection
+const listenMessagesCollection = `/${conversations}/{documentId}/${messages}/{documentId}`;
 
 // When a new user is created in the collections $usersCollection the password is encrypted.
 // Also  adds a new document to $usernamesUnavaibleCollection collection to identify if the username is duplicated.
@@ -191,6 +197,7 @@ exports.onUpdateCall = firestore.document(listenToCollection)
         const receiverCallType = CallType.Incoming;
 
         const getHistoryCallAsObject = (
+            id: string,
             imgUrl: string | undefined,
             fullname: string,
             username: string,
@@ -199,6 +206,7 @@ exports.onUpdateCall = firestore.document(listenToCollection)
             callType: CallType
         ) => {
             return {
+                'idUser': id,
                 imgUrl,
                 fullname,
                 username,
@@ -209,6 +217,7 @@ exports.onUpdateCall = firestore.document(listenToCollection)
         }
 
         const callerObject = getHistoryCallAsObject(
+            participantIDCaller,
             callerImageUrl,
             callerFullName,
             callerUsername,
@@ -217,6 +226,7 @@ exports.onUpdateCall = firestore.document(listenToCollection)
             callerCallType);
 
         const receiverObject = getHistoryCallAsObject(
+            participantIDReceiver,
             receiverImageUrl,
             receiverFullName,
             receiverUsername,
@@ -224,25 +234,113 @@ exports.onUpdateCall = firestore.document(listenToCollection)
             conversationType,
             receiverCallType);
 
+        /// Adding this call to the history of each user
         const callerCollection = change.after.ref.firestore.collection(getHistoryCollection(participantIDCaller));
         const receiverCollection = change.after.ref.firestore.collection(getHistoryCollection(participantIDReceiver));
 
-        logger.info(`Updating the history of the caller and receiver}`);
         callerCollection.add(callerObject);
         return receiverCollection.add(receiverObject);
     });
 
-/* Just for testing purposes
-// http://localhost:5001/videocalling-flutter-26813/us-central1/test
-// Take the text parameter passed to this HTTP endpoint and insert it into
-// Firestore under the path /messages/:documentId/original
-exports.test = functions.https.onRequest(async (_, res) => {
-    // Send back a message that we've successfully written the message
-    //  await getLatestCryptoResponse();
-    const token = 'c390aPiMSxyf0fJAiVc-FR:APA91bHuIB2Mkw-t473hIMVv1HeyKyeTpvOBwqhjN-Z9ZNyGmG3jm7P-iPxNF98QcqWPgaV__2_3VGvkBzGbF2dqzFAb2UUz1npFQM6L8JbvPUpJ65Ey-jj8-WSF1mmYBRFLPcp__KIw';
-    const idVideocall = 'asdsad';
-    const username = 'username';
-    sendVideoCallNotification(token, idVideocall, username, undefined).then(() => {
-        res.send("Process ended");
-    })
-});*/
+/* Context: $listenMessagesCollection in that collection the 
+messages are stored. Then when a new message is added (created) the function 
+is triggered to update the object LastMessage for each user in the
+database. Both of them should exists
+*/
+exports.onCreateMessages = firestore.document(listenMessagesCollection)
+    .onCreate(async (snap, _) => {
+
+        /*
+            Help to print messages in the console and end the process
+        */
+        const zero = (message: string | undefined = undefined) => {
+            if (message)
+                logger.error(message);
+            return 0;
+        };
+
+        // Get the parent of this collection
+        const ref = snap.ref.path;
+
+        /// collection/documentId
+        const components = ref.split('/');
+
+        if (!components) return zero(`No components found in ${ref}`);
+
+        const documentId = components[1];
+
+        const collection = snap.ref.firestore.collection(conversations);
+
+        const doc = await collection.doc(documentId).get();
+
+        if (!doc.exists) return zero(`The document ${documentId} doesn't exists`);
+
+        const data = doc.data();
+
+        if (!data) return zero(`The data of the document ${documentId} doesn't exists`);
+
+
+        const idConversation = data.id as string | undefined;
+
+        /**
+          The ids of the participants in this  conversation     
+        */
+        const idsUser = data.idsUser as string[] | undefined;
+
+        if (idsUser?.length !== 2 || !idConversation) return zero(`Data not work properly. IDSUSER: ${idsUser} - ID: ${idConversation}`);
+
+        /** 
+            The new message send (create) in this conversation
+        */
+        const currentMessage = snap.data();
+
+
+        /**
+            The id of the user who send the message.
+        */
+        const idUser = currentMessage.idUser as string;
+
+        if (!existsInArray(idUser, idsUser)) return zero(`The idUser ${idUser} is not in the array ${idsUser}`);
+
+        const userIDA = idsUser[0];
+
+        const userIDB = idsUser[1];
+
+        // TODO: Send a notification (Get the tokens of the users)
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // const 
+
+
+
+        // Get the ids from the refs
+
+        // Update with the data of this snap in each last message
+
+        return 0;
+
+    });
+//
+//https://firebase.google.com/docs/functions/firestore-events#define_a_function_trigger
+
+// TODO: Create the endpoint test and call it.
+// Inside of that function create the objects necessary in the database to test the function (the last one)

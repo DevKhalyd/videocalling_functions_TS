@@ -1,5 +1,7 @@
 const usersCollection = 'users';
 const usernamesUnavaibleCollection = 'usernames_unavaible';
+const conversations = 'conversations';
+const messages = 'messages';
 const callsCollection = 'calls';
 const historyCallsCollection = 'history_calls';
 
@@ -29,10 +31,17 @@ function getHistoryCollection(doc: string): string {
     return `${usersCollection}/${doc}/${historyCallsCollection}`;
 }
 
+function existsInArray(element: string, array: string[]): boolean {
+    return array.indexOf(element) > -1;
+}
+
 export {
     usersCollection,
     usernamesUnavaibleCollection,
     callsCollection,
     videocallingNotificationDurationMs,
-    getHistoryCollection
+    conversations,
+    messages,
+    getHistoryCollection,
+    existsInArray
 }

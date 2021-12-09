@@ -1,6 +1,19 @@
 # TODO
 
+Read the flowchart and implement the needed functions to work with
+
 Test the functions.
+
+# Fast Testing
+
+```ts
+// http://localhost:5001/videocalling-flutter-26813/us-central1/test
+// Take the text parameter passed to this HTTP endpoint and insert it into
+// Firestore under the path /messages/:documentId/original
+exports.test = functions.https.onRequest(async (_, res) => {
+  // Call a function to isolate its function
+});
+```
 
 # Errors
 
