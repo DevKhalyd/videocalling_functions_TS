@@ -14,6 +14,8 @@ import {
     usersCollection,
 } from "./utils/utils";
 import createTokenandChannel from "./features/agora";
+import Message from "./models/fcm/message";
+import { getUserById } from "./features/firestore";
 
 
 // The Firebase Admin SDK to access Firestore.
@@ -259,17 +261,19 @@ exports.onCreateMessages = firestore.document(listenMessagesCollection)
             return 0;
         };
 
+        const firestore = snap.ref.firestore;
+
         // Get the parent of this collection
-        const ref = snap.ref.path;
+        const path = snap.ref.path;
 
         /// collection/documentId
-        const components = ref.split('/');
+        const components = path.split('/');
 
-        if (!components) return zero(`No components found in ${ref}`);
+        if (!components) return zero(`No components found in ${path}`);
 
         const documentId = components[1];
 
-        const collection = snap.ref.firestore.collection(conversationsCollection);
+        const collection = firestore.collection(conversationsCollection);
 
         const doc = await collection.doc(documentId).get();
 
@@ -292,13 +296,12 @@ exports.onCreateMessages = firestore.document(listenMessagesCollection)
         /** 
             The new message send (create) in this conversation
         */
-        const currentMessage = snap.data();
-
+        const currentMessage = new Message(snap.data());
 
         /**
             The id of the user who send the message.
         */
-        const idUser = currentMessage.idUser as string;
+        const idUser = currentMessage.idUser;
 
         if (!existsInArray(idUser, idsUser)) return zero(`The idUser ${idUser} is not in the array ${idsUser}`);
 
@@ -306,35 +309,30 @@ exports.onCreateMessages = firestore.document(listenMessagesCollection)
 
         const userIDB = idsUser[1];
 
-        // TODO: Send a notification (Get the tokens of the users)
+        const userA = await getUserById(firestore, userIDA);
 
+        const userB = await getUserById(firestore, userIDB);
 
+        if (!userA || !userB) return zero(`The user ${userIDA} or ${userIDB} doesn't exists`);
 
+        /**
+         * Help to indentify the user who send the message.
+         * 
+         * In this case If this condition returns true then the user who send the message is the userA
+         * otherwise the user who send the message is the userB
+         */
+        const isUserA = idUser === userIDA;
 
+        /**
+         * 
+         * The id to send a notification that have a new message
+         * 
+         */
+        const sendNotificationTo = isUserA ? userIDB : userIDA;
 
+        // TODO: If the user contains the tokenFCM send the notification
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // const 
-
-
-
-        // Get the ids from the refs
-
-        // Update with the data of this snap in each last message
+        // TODO: Update the last message of each user
 
         return 0;
 

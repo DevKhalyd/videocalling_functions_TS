@@ -50,6 +50,11 @@ function sendVideoCallNotification(
     });
 }
 
+function sendMessageNotification() {
+
+}
+
 export {
-    sendVideoCallNotification
+    sendVideoCallNotification,
+    sendMessageNotification
 }
