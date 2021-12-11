@@ -306,10 +306,12 @@ exports.onCreateMessages = firestore.document(listenMessagesCollection)
 
         if (!existsInArray(idUser, idsUser)) return zero(`The idUser ${idUser} is not in the array ${idsUser}`);
 
+        // Ids of each user
         const userIDA = idsUser[0];
 
         const userIDB = idsUser[1];
 
+        // Data of each user
         const userA = await getUserById(firestore, userIDA);
 
         const userB = await getUserById(firestore, userIDB);
@@ -329,7 +331,7 @@ exports.onCreateMessages = firestore.document(listenMessagesCollection)
          */
         const tokenFCM = isUserA ? userB.tokenFCM : userA.tokenFCM;
 
-        // Data to send the message
+        // Data to send the message of a new notification.
         const fullname = isUserA ? userB.fullname : userA.fullname;
 
         const imageUrl = isUserA ? userB.imageUrl : userA.imageUrl;
@@ -337,9 +339,8 @@ exports.onCreateMessages = firestore.document(listenMessagesCollection)
 
         if (tokenFCM) sendMessageNotification(tokenFCM, fullname, currentMessage.getMessage(), imageUrl);
 
-        // TODO: If the user contains the tokenFCM send the notification
-
         // TODO: Update the last message of each user
+        
 
         return 0;
 

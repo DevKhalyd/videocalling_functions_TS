@@ -53,7 +53,6 @@ function sendVideoCallNotification(
 }
 
 /**
- * 
  * Send a notification to indicate have a new message
  * 
  * @param token FCM token device of the user to send the notification
