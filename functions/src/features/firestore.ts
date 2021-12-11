@@ -1,5 +1,6 @@
+import Conversation from "../models/firestore/conversation";
 import User from "../models/firestore/user";
-import { usersCollection } from "../utils/utils";
+import { conversationsCollection, usersCollection } from "../utils/utils";
 
 /**
  * Gets user by id
@@ -17,6 +18,43 @@ async function getUserById(firestore: FirebaseFirestore.Firestore, docId: string
     return User.fromJSON(userDoc.data());
 }
 
+
+/**
+ * Gets conversation by user id and conversation id
+ * 
+ * Basically in this object (doc) saves the latest message collection
+ * 
+ * @param firestore The reference to firestore. Avoid to use a singleton class
+ * @param userdID The user's id
+ * @param conversationID The conversation's id
+ * @returns {Promise<Conversation | undefined>} - If returns undefined, the conversation doesn't exist so create it 
+ */
+async function getConversationByID(firestore: FirebaseFirestore.Firestore, userdID: string, conversationID: string): Promise<Conversation | undefined> {
+    const conversationDoc = await firestore.collection(usersCollection).doc(userdID).collection(conversationsCollection).doc(conversationID).get();
+    if (!conversationDoc.exists)
+        return undefined;
+    return Conversation.fromJSON(conversationDoc.data());
+}
+
+/**
+ * Creates conversation
+ * 
+ * @param firestore  The reference to firestore. Avoid to use a singleton class
+ * @param userdID The user's id'
+ * @param conversation The conversation to create
+ * @returns {Promise<boolean>} - If returns true, the conversation was created
+ */
+async function createConversation(firestore: FirebaseFirestore.Firestore, userdID: string, conversation: Conversation): Promise<boolean> {
+    try {
+        await firestore.collection(usersCollection).doc(userdID).collection(conversationsCollection).doc(conversation.id).set(conversation.toJSON());
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
 export {
-    getUserById
+    getUserById,
+    getConversationByID,
+    createConversation,
 }

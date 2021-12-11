@@ -284,7 +284,9 @@ exports.onCreateMessages = firestore.document(listenMessagesCollection)
 
         if (!data) return zero(`The data of the document ${documentId} doesn't exists`);
 
-
+        /**
+         * According to the backend design, this id is the same that the user conversartion list.
+         */
         const idConversation = data.id as string | undefined;
 
         /**
@@ -336,11 +338,13 @@ exports.onCreateMessages = firestore.document(listenMessagesCollection)
 
         const imageUrl = isUserA ? userB.imageUrl : userA.imageUrl;
 
-
         if (tokenFCM) sendMessageNotification(tokenFCM, fullname, currentMessage.getMessage(), imageUrl);
 
+        // Verify if the conversations already exists otherwise create it
+
+
         // TODO: Update the last message of each user
-        
+
 
         return 0;
 
