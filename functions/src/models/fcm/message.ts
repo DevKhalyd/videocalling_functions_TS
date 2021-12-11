@@ -1,4 +1,4 @@
-import MessageType from "./message_type";
+import MessageType, { MessageTypeEnum } from "./message_type";
 
 export default class Message {
     readonly idUser: string;
@@ -16,6 +16,22 @@ export default class Message {
         this.idUser = o.idUser;
         this.messageType = new MessageType(o.messageType);
         this.data = o.data;
+    }
+
+    public getMessage()
+        : string {
+        // How to open the emoji picker in mac (ctrl + cmd + space)
+        // https://stackoverflow.com/a/36846969
+        switch (this.messageType.type) {
+            case MessageTypeEnum.Text:
+                return this.data as string;
+            case MessageTypeEnum.Image:
+                return "Image 🏞";
+            case MessageTypeEnum.Audio:
+                return "Audio 🎧";
+            default:
+                return "You got a new message";
+        }
     }
 
     static fromJSON(o: any): Message {

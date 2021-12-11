@@ -22,6 +22,13 @@ messages that can't be delivered immediately are discarded.
 const videocallingNotificationDurationMs = 0;
 
 /**
+ * 
+ * Tries until one hour to send the notification.
+ * 
+ */
+const messageNotificationDuration = 3600;
+
+/**
  * Use to get the historyCalls path and do some actions on it
  * 
  * @param doc The id of the document to update (User)
@@ -42,6 +49,7 @@ export {
     videocallingNotificationDurationMs,
     conversationsCollection,
     messagesCollection,
+    messageNotificationDuration,
     getHistoryCollection,
     existsInArray
 }

@@ -4,6 +4,8 @@ Read the flowchart and implement the needed functions to work with
 
 Test the functions.
 
+Last part. Test the server against IOS devices.
+
 # Fast Testing
 
 ```ts

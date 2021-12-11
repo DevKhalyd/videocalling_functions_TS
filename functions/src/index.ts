@@ -2,7 +2,7 @@ import * as  admin from "firebase-admin";
 import * as functions from "firebase-functions";
 import encryptPassword from "./features/bcrypt";
 import { CallState, CallType } from "./utils/enums";
-import { sendVideoCallNotification } from "./features/fcm";
+import { sendMessageNotification, sendVideoCallNotification } from "./features/fcm";
 
 import {
     callsCollection,
@@ -16,6 +16,7 @@ import {
 import createTokenandChannel from "./features/agora";
 import Message from "./models/fcm/message";
 import { getUserById } from "./features/firestore";
+import { user } from "firebase-functions/v1/auth";
 
 
 // The Firebase Admin SDK to access Firestore.
@@ -294,7 +295,7 @@ exports.onCreateMessages = firestore.document(listenMessagesCollection)
         if (idsUser?.length !== 2 || !idConversation) return zero(`Data not work properly. IDSUSER: ${idsUser} - ID: ${idConversation}`);
 
         /** 
-            The new message send (create) in this conversation
+            The new message sent (created) in this conversation
         */
         const currentMessage = new Message(snap.data());
 
@@ -324,11 +325,17 @@ exports.onCreateMessages = firestore.document(listenMessagesCollection)
         const isUserA = idUser === userIDA;
 
         /**
-         * 
-         * The id to send a notification that have a new message
-         * 
+         * The tokenFCM to send a notification that have a new message
          */
-        const sendNotificationTo = isUserA ? userIDB : userIDA;
+        const tokenFCM = isUserA ? userB.tokenFCM : userA.tokenFCM;
+
+        // Data to send the message
+        const fullname = isUserA ? userB.fullname : userA.fullname;
+
+        const imageUrl = isUserA ? userB.imageUrl : userA.imageUrl;
+
+
+        if (tokenFCM) sendMessageNotification(tokenFCM, fullname, currentMessage.getMessage(), imageUrl);
 
         // TODO: If the user contains the tokenFCM send the notification
 

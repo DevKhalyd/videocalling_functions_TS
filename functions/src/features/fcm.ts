@@ -1,6 +1,6 @@
 import { messaging } from "firebase-admin";
 import { logger } from "firebase-functions/v1";
-import { videocallingNotificationDurationMs } from "../utils/utils";
+import { messageNotificationDuration, videocallingNotificationDurationMs } from "../utils/utils";
 
 /// Transform to an image with background color with cloud functions
 const _image = 'https://lacollege.edu/wp-content/uploads/2021/09/blank-profile-picture.png';
@@ -19,6 +19,8 @@ function sendVideoCallNotification(
     imageUrl: string | undefined,
 ): Promise<boolean> {
 
+    // Context: Send the data instead of the notification.
+    // This is because the notification is shown on the app.
     const data = {
         idVideocall,
         username,
@@ -50,8 +52,46 @@ function sendVideoCallNotification(
     });
 }
 
-function sendMessageNotification() {
+/**
+ * 
+ * Send a notification to indicate have a new message
+ * 
+ * @param token FCM token device of the user to send the notification
+ * @param fullname The fullname who send the message
+ * @param message What contains the last message of that user
+ * @param imageUrl The image of the user who send the message
+ * @returns {Promise<boolean>} Returns true if the message was sent successfully
+ */
+async function sendMessageNotification(
+    token: string,
+    fullname: string,
+    message: string,
+    imageUrl: string | undefined,
+): Promise<boolean> {
 
+    const data = {
+        fullname,
+        message,
+        image: imageUrl ?? _image,
+    }
+
+    const android: messaging.AndroidConfig = {
+        priority: 'high',
+        ttl: messageNotificationDuration,
+    };
+
+    const msg: messaging.Message = {
+        token,
+        android,
+        data,
+    }
+
+    try {
+        await messaging().send(msg);
+        return true;
+    } catch (error) {
+        return false;
+    }
 }
 
 export {
