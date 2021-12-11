@@ -25,6 +25,21 @@ export default class Conversation {
         this.imgUrl = o.imgUrl;
     }
 
+    /**
+     * Because create other constructor does not match with the initial constructor.
+     * I made this method to create a new instance of the class.
+     */
+    static fromParameters(id: string, idUser: string, fullname: string, username: string, imgUrl: string | undefined): Conversation {
+        return new Conversation({
+            id,
+            idUser,
+            fullname,
+            username,
+            imgUrl,
+        });
+    }
+
+
     static fromJSON(o: any): Conversation {
         return new Conversation(o);
     }

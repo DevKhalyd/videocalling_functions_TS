@@ -15,8 +15,9 @@ import {
 } from "./utils/utils";
 import createTokenandChannel from "./features/agora";
 import Message from "./models/fcm/message";
-import { getUserById } from "./features/firestore";
+import { createConversation, getConversationByID, getUserById } from "./features/firestore";
 import { user } from "firebase-functions/v1/auth";
+import Conversation from "./models/firestore/conversation";
 
 
 // The Firebase Admin SDK to access Firestore.
@@ -340,12 +341,38 @@ exports.onCreateMessages = firestore.document(listenMessagesCollection)
 
         if (tokenFCM) sendMessageNotification(tokenFCM, fullname, currentMessage.getMessage(), imageUrl);
 
-        // Verify if the conversations already exists otherwise create it
+        const createANewConversation = async (idUser: string, conversation: Conversation) => {
+            await createConversation(firestore, idUser, conversation);
+        };
 
+        // Verify if the conversations already exists otherwise create it
+        const conversationA = await getConversationByID(firestore, userIDA, idConversation);
+
+        if (!conversationA) {
+            const newConversationA = Conversation.fromParameters(
+                idConversation,
+                userIDB,
+                userB.fullname,
+                userB.username,
+                userB.imageUrl,
+            );
+            await createANewConversation(userIDA, newConversationA);
+        }
+
+        const conversationB = await getConversationByID(firestore, userIDB, idConversation);
+
+        if (!conversationB) {
+            const newConversationB = Conversation.fromParameters(
+                idConversation,
+                userIDA,
+                userA.fullname,
+                userA.username,
+                userA.imageUrl,
+            );
+            await createANewConversation(userIDB, newConversationB);
+        }
 
         // TODO: Update the last message of each user
-
-
         return 0;
 
     });

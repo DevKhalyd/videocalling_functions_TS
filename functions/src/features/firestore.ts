@@ -40,13 +40,14 @@ async function getConversationByID(firestore: FirebaseFirestore.Firestore, userd
  * Creates conversation
  * 
  * @param firestore  The reference to firestore. Avoid to use a singleton class
- * @param userdID The user's id'
+ * @param userdID The user's id
  * @param conversation The conversation to create
  * @returns {Promise<boolean>} - If returns true, the conversation was created
  */
 async function createConversation(firestore: FirebaseFirestore.Firestore, userdID: string, conversation: Conversation): Promise<boolean> {
     try {
-        await firestore.collection(usersCollection).doc(userdID).collection(conversationsCollection).doc(conversation.id).set(conversation.toJSON());
+        const options: FirebaseFirestore.SetOptions = { merge: true };
+        await firestore.collection(usersCollection).doc(userdID).collection(conversationsCollection).doc(conversation.id).set(conversation.toJSON(), options);
         return true;
     } catch (error) {
         return false;
