@@ -1,3 +1,4 @@
+import LastMessage from "../models/fcm/last_message";
 import Conversation from "../models/firestore/conversation";
 import User from "../models/firestore/user";
 import { conversationsCollection, usersCollection } from "../utils/utils";
@@ -54,8 +55,37 @@ async function createConversation(firestore: FirebaseFirestore.Firestore, userdI
     }
 }
 
+
+/**
+ * 
+ * Update / create the LastMessage of a conversation
+ * 
+ * @param firestore The reference to firestore. Avoid to use a singleton class
+ * @param userID The user's id
+ * @param conversartionId The conversation's id
+ * @param lastMessage The last message
+ * @returns {Promise<boolean>} - If returns true, the last message was updated or created successfully
+ */
+async function updateLastMessage(
+    firestore: FirebaseFirestore.Firestore,
+    userID: string,
+    conversartionId: string,
+    lastMessage: LastMessage,
+): Promise<boolean> {
+    try {
+        await firestore.collection(usersCollection)
+        .doc(userID)
+        .collection(conversationsCollection)
+        .doc(conversartionId).set({ lastMessage: lastMessage });
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
 export {
     getUserById,
     getConversationByID,
     createConversation,
+    updateLastMessage
 }

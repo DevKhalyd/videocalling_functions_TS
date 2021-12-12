@@ -3,6 +3,7 @@ import MessageType, { MessageTypeEnum } from "./message_type";
 export default class Message {
     readonly idUser: string;
     readonly messageType: MessageType;
+    /**Could be a message or a url to download resources */
     readonly data: string | undefined;
 
     /**

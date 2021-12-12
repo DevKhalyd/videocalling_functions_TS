@@ -17,8 +17,26 @@ export default class LastMessage {
         this.acumalativeMsgs = o?.acumalativeMsgs ?? 0;
     }
 
+    static fromParameters(
+        messageType: MessageType,
+        messageState: MessageState, 
+        date: any,
+        message: string | undefined,
+        acumalativeMsgs: number,
+        ): LastMessage {
+        return new LastMessage({
+            messageType,
+            messageState,
+            date,
+            message,
+            acumalativeMsgs
+        });
+    }
+
     static fromJSON(o: any): LastMessage {
         return new LastMessage(o);
     }
+
+
 
 }

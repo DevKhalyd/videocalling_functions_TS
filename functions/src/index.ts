@@ -15,9 +15,11 @@ import {
 } from "./utils/utils";
 import createTokenandChannel from "./features/agora";
 import Message from "./models/fcm/message";
-import { createConversation, getConversationByID, getUserById } from "./features/firestore";
+import { createConversation, getConversationByID, getUserById, updateLastMessage } from "./features/firestore";
 import { user } from "firebase-functions/v1/auth";
 import Conversation from "./models/firestore/conversation";
+import LastMessage from "./models/fcm/last_message";
+import MessageState, { MessageStateEnum } from "./models/fcm/message_state";
 
 
 // The Firebase Admin SDK to access Firestore.
@@ -341,11 +343,12 @@ exports.onCreateMessages = firestore.document(listenMessagesCollection)
 
         if (tokenFCM) sendMessageNotification(tokenFCM, fullname, currentMessage.getMessage(), imageUrl);
 
+        // Verify if the conversations already exists otherwise create it
+
         const createANewConversation = async (idUser: string, conversation: Conversation) => {
             await createConversation(firestore, idUser, conversation);
         };
 
-        // Verify if the conversations already exists otherwise create it
         const conversationA = await getConversationByID(firestore, userIDA, idConversation);
 
         if (!conversationA) {
@@ -372,7 +375,31 @@ exports.onCreateMessages = firestore.document(listenMessagesCollection)
             await createANewConversation(userIDB, newConversationB);
         }
 
-        // TODO: Update the last message of each user
+        // Update the last message of each user
+
+        const createLastMessage = (messageStateEnum: MessageStateEnum, acumalativeMessages: number = 0) => {
+            const date = admin.firestore.FieldValue.serverTimestamp();
+            return LastMessage.fromParameters(
+                currentMessage.messageType,
+                new MessageState(messageStateEnum),
+                date,
+                currentMessage.data,
+                acumalativeMessages);
+        };
+
+        let acumalativeMessagesForUserA = 0;
+
+        if (!isUserA) {
+            // TODO: Get the acumality of messages from the userB
+        }
+
+        const lastMessageForA = createLastMessage(isUserA ? MessageStateEnum.Seen : MessageStateEnum.Delivered, acumalativeMessagesForUserA);
+
+        await updateLastMessage(firestore, userIDA, idConversation, lastMessageForA);
+
+
+        // TODO: Do the same for the userB
+
         return 0;
 
     });
