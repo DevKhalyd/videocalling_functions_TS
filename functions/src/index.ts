@@ -15,8 +15,7 @@ import {
 } from "./utils/utils";
 import createTokenandChannel from "./features/agora";
 import Message from "./models/fcm/message";
-import { createConversation, getConversationByID, getUserById, updateLastMessage } from "./features/firestore";
-import { user } from "firebase-functions/v1/auth";
+import { createConversation, getAcumulativeMessages, getConversationByID, getUserById, updateLastMessage } from "./features/firestore";
 import Conversation from "./models/firestore/conversation";
 import LastMessage from "./models/fcm/last_message";
 import MessageState, { MessageStateEnum } from "./models/fcm/message_state";
@@ -388,20 +387,23 @@ exports.onCreateMessages = firestore.document(listenMessagesCollection)
         };
 
         let acumalativeMessagesForUserA = 0;
+        let acumalativeMessagesForUserB = 0;
 
-        if (!isUserA) {
-            // TODO: Get the acumality of messages from the userB
-        }
+        /// The user A acts as receiver...
+        if (!isUserA)
+            acumalativeMessagesForUserA = await getAcumulativeMessages(firestore, idConversation, userIDA);
+        else
+            acumalativeMessagesForUserB = await getAcumulativeMessages(firestore, idConversation, userIDB);
 
         const lastMessageForA = createLastMessage(isUserA ? MessageStateEnum.Seen : MessageStateEnum.Delivered, acumalativeMessagesForUserA);
 
+        const lastMessageForB = createLastMessage(isUserA ? MessageStateEnum.Delivered : MessageStateEnum.Seen, acumalativeMessagesForUserB);
+
         await updateLastMessage(firestore, userIDA, idConversation, lastMessageForA);
 
-
-        // TODO: Do the same for the userB
+        await updateLastMessage(firestore, userIDB, idConversation, lastMessageForB);
 
         return 0;
-
     });
 //
 //https://firebase.google.com/docs/functions/firestore-events#define_a_function_trigger

@@ -1,7 +1,9 @@
+import MessageState from "./message_state";
 import MessageType, { MessageTypeEnum } from "./message_type";
 
 export default class Message {
     readonly idUser: string;
+    readonly messageState: MessageState;
     readonly messageType: MessageType;
     /**Could be a message or a url to download resources */
     readonly data: string | undefined;
@@ -16,6 +18,7 @@ export default class Message {
     constructor(o: any) {
         this.idUser = o.idUser;
         this.messageType = new MessageType(o.messageType);
+        this.messageState = new MessageState(o.messageState);
         this.data = o.data;
     }
 

@@ -1,7 +1,10 @@
 import LastMessage from "../models/fcm/last_message";
+import Message from "../models/fcm/message";
+import { MessageStateEnum } from "../models/fcm/message_state";
+import conversation from "../models/firestore/conversation";
 import Conversation from "../models/firestore/conversation";
 import User from "../models/firestore/user";
-import { conversationsCollection, usersCollection } from "../utils/utils";
+import { conversationsCollection, messagesCollection, usersCollection } from "../utils/utils";
 
 /**
  * Gets user by id
@@ -74,18 +77,50 @@ async function updateLastMessage(
 ): Promise<boolean> {
     try {
         await firestore.collection(usersCollection)
-        .doc(userID)
-        .collection(conversationsCollection)
-        .doc(conversartionId).set({ lastMessage: lastMessage });
+            .doc(userID)
+            .collection(conversationsCollection)
+            .doc(conversartionId).set({ lastMessage: lastMessage });
         return true;
     } catch (error) {
         return false;
     }
 }
 
+
+/**
+ * Gets acumulative messages for a user given
+ * 
+ * @param firestore  The reference to firestore. Avoid to use a singleton class
+ * @param idConversation The conversation's id
+ * @param idUser The user's id to compare with the other one
+ * @returns {Promise<number>}  The number of messages unreaded
+ */
+async function getAcumulativeMessages(
+    firestore: FirebaseFirestore.Firestore,
+    idConversation: string,
+    idUser: string,
+): Promise<number> {
+
+    const snapshot = await firestore.collection(conversationsCollection).doc(idConversation).
+        collection(messagesCollection).where("messageState.type", "==", MessageStateEnum.Delivered).get();
+
+    if (snapshot.empty)
+        return 0;
+
+    let totalMessages = 0;
+
+    snapshot.forEach(doc => {
+        const msg = new Message(doc.data());
+        if (msg.idUser !== idUser) totalMessages++;
+    });
+
+    return totalMessages;
+}
+
 export {
     getUserById,
     getConversationByID,
     createConversation,
-    updateLastMessage
+    updateLastMessage,
+    getAcumulativeMessages,
 }
