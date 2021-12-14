@@ -21,6 +21,12 @@ class MessageType {
         this.type = o.type;
     }
 
+    toJSON() {
+        return {
+            type: this.type,
+        };
+    }
+
     static fromJSON(o: any): MessageType {
         return new MessageType(o);
     }

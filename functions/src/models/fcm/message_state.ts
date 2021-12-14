@@ -22,6 +22,12 @@ class MessageState {
         this.type = o.type;
     }
 
+    toJSON() {
+        return {
+            type: this.type,
+        };
+    }
+
     static fromJSON(o: any): MessageState {
         return new MessageState(o);
     }

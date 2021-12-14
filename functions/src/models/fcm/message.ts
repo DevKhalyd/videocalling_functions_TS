@@ -22,7 +22,16 @@ export default class Message {
         this.data = o.data;
     }
 
-    public getMessage()
+    toJSON() {
+        return {
+            idUser: this.idUser,
+            messageType: this.messageType.toJSON(),
+            messageState: this.messageState.toJSON(),
+            data: this.data,
+        };
+    }
+
+    getMessage()
         : string {
         // How to open the emoji picker in mac (ctrl + cmd + space)
         // https://stackoverflow.com/a/36846969
@@ -41,4 +50,6 @@ export default class Message {
     static fromJSON(o: any): Message {
         return new Message(o);
     }
+
+
 }

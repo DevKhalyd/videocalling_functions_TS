@@ -406,18 +406,26 @@ exports.onCreateMessages = firestore.document(listenMessagesCollection)
         return 0;
     });
 
+/* 
+    Testing purposes
+*/
 
 
 //https://firebase.google.com/docs/functions/firestore-events#define_a_function_trigger
 
-// TODO: Create the function for setup the firestore
-
 exports.setup = functions.https.onRequest(async (_, res) => {
-    // Call a function to isolate its function
+
+    // Add the users A and B objects
+
+    // Create the conversation id and the users id for this new conversation
 
 });
 
-// TODO: Create a function to add a message in the conversation
 exports.addMessageConversation = functions.https.onRequest(async (_, res) => {
+
+    // TODO: Create a function to add a message in the conversation
+    
+
+
 
 });

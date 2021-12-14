@@ -1,10 +1,12 @@
 import LastMessage from "../models/fcm/last_message";
 import Message from "../models/fcm/message";
 import { MessageStateEnum } from "../models/fcm/message_state";
-import conversation from "../models/firestore/conversation";
 import Conversation from "../models/firestore/conversation";
 import User from "../models/firestore/user";
 import { conversationsCollection, messagesCollection, usersCollection } from "../utils/utils";
+
+// NOTE: As the functions increases in size I think its necessary a change, for example a singleton pattern
+
 
 /**
  * Gets user by id
@@ -117,10 +119,53 @@ async function getAcumulativeMessages(
     return totalMessages;
 }
 
+/**
+ * Adds new user
+ * 
+ * @param firestore The reference to firestore. Avoid to use a singleton class
+ * @param id The user's id
+ * @param user The user to add
+ */
+async function addNewUser(
+    firestore: FirebaseFirestore.Firestore,
+    id: string,
+    user: User,
+) {
+    await firestore.collection(usersCollection).doc(id).set(user.toJSON());
+}
+
+async function addNewMessage(
+    firestore: FirebaseFirestore.Firestore,
+    idConversation: string,
+    message: Message,
+) {
+    await firestore.collection(conversationsCollection).doc(idConversation).collection(messagesCollection).add(message.toJSON());
+}
+/**
+ * Create a new conversation in firestore
+ * 
+ * @param firestore The reference to firestore. Avoid to use a singleton class
+ * @param id The conversation's id 
+ * @param idsUser The id users who are involved in the conversation
+ */
+async function createNewConversation(
+    firestore: FirebaseFirestore.Firestore,
+    id: string,
+    idsUser: string[],
+) {
+    await firestore.collection(conversationsCollection).doc(id).set({
+        id,
+        idsUser
+    });
+}
+
 export {
     getUserById,
     getConversationByID,
     createConversation,
     updateLastMessage,
     getAcumulativeMessages,
+    addNewUser,
+    createNewConversation,
+    addNewMessage
 }
