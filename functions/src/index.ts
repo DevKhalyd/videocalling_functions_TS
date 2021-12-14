@@ -405,8 +405,19 @@ exports.onCreateMessages = firestore.document(listenMessagesCollection)
 
         return 0;
     });
-//
+
+
+
 //https://firebase.google.com/docs/functions/firestore-events#define_a_function_trigger
 
-// TODO: Create the endpoint test and call it.
-// Inside of that function create the objects necessary in the database to test the function (the last one)
+// TODO: Create the function for setup the firestore
+
+exports.setup = functions.https.onRequest(async (_, res) => {
+    // Call a function to isolate its function
+
+});
+
+// TODO: Create a function to add a message in the conversation
+exports.addMessageConversation = functions.https.onRequest(async (_, res) => {
+
+});
