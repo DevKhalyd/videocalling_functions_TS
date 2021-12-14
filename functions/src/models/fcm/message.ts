@@ -1,4 +1,4 @@
-import MessageState from "./message_state";
+import MessageState, { MessageStateEnum } from "./message_state";
 import MessageType, { MessageTypeEnum } from "./message_type";
 
 export default class Message {
@@ -22,6 +22,7 @@ export default class Message {
         this.data = o.data;
     }
 
+
     toJSON() {
         return {
             idUser: this.idUser,
@@ -31,6 +32,11 @@ export default class Message {
         };
     }
 
+    /**
+     * 
+     * Return a readable message for notification
+     * 
+     */
     getMessage()
         : string {
         // How to open the emoji picker in mac (ctrl + cmd + space)
@@ -49,6 +55,20 @@ export default class Message {
 
     static fromJSON(o: any): Message {
         return new Message(o);
+    }
+
+    static forTesting() {
+        /// NOTE: I can state for each function
+        return new Message({
+            idUser: "123",
+            messageType: {
+                type: MessageTypeEnum.Text,
+            },
+            messageState: {
+                type: MessageStateEnum.Delivered,
+            },
+            data: "Hello",
+        });
     }
 
 

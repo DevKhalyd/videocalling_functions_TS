@@ -15,11 +15,13 @@ import {
 } from "./utils/utils";
 import createTokenandChannel from "./features/agora";
 import Message from "./models/fcm/message";
-import { createConversation, getAcumulativeMessages, getConversationByID, getUserById, updateLastMessage } from "./features/firestore";
+import { addNewMessage, addNewUser, createConversation, createNewConversation, getAcumulativeMessages, getConversationByID, getUserById, updateLastMessage } from "./features/firestore";
 import Conversation from "./models/firestore/conversation";
 import LastMessage from "./models/fcm/last_message";
 import MessageState, { MessageStateEnum } from "./models/fcm/message_state";
+import User from "./models/firestore/user";
 
+// TODO: Read all the code and verify that each Promise use an await keyword. Because the cloud functions kills the threads if ends before each thread ends.
 
 // The Firebase Admin SDK to access Firestore.
 admin.initializeApp();
@@ -408,24 +410,35 @@ exports.onCreateMessages = firestore.document(listenMessagesCollection)
 
 /* 
     Testing purposes
+    Examples: 
+    https://firebase.google.com/docs/functions/get-started#review_complete_sample_code
 */
 
+const idConversation = 'idConversation';
+const tes1 = 'test1';
+const tes2 = 'test2';
+const idsUser = [tes1, tes2];
 
 //https://firebase.google.com/docs/functions/firestore-events#define_a_function_trigger
 
-exports.setup = functions.https.onRequest(async (_, res) => {
+exports.setup = functions.https.onRequest(async (req, res) => {
+
+    const adminFirestore = admin.firestore();
 
     // Add the users A and B objects
+    await addNewUser(adminFirestore, tes1, User.forTesting(tes1));
+    await addNewUser(adminFirestore, tes2, User.forTesting(tes2));
 
-    // Create the conversation id and the users id for this new conversation
+    await createNewConversation(adminFirestore, idConversation, idsUser);
 
+
+    res.send('Setup done');
 });
 
 exports.addMessageConversation = functions.https.onRequest(async (_, res) => {
 
-    // TODO: Create a function to add a message in the conversation
-    
 
+    await addNewMessage(admin.firestore(), idConversation, Message.forTesting());
 
-
+    res.send('Add message done');
 });
