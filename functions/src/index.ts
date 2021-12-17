@@ -15,13 +15,10 @@ import {
 } from "./utils/utils";
 import createTokenandChannel from "./features/agora";
 import Message from "./models/fcm/message";
-import { addNewMessage, addNewUser, createConversation, createNewConversation, getAcumulativeMessages, getConversationByID, getUserById, updateLastMessage } from "./features/firestore";
+import { createConversation, getAcumulativeMessages, getConversationByID, getUserById, updateLastMessage } from "./features/firestore";
 import Conversation from "./models/firestore/conversation";
 import LastMessage from "./models/fcm/last_message";
 import MessageState, { MessageStateEnum } from "./models/fcm/message_state";
-import User from "./models/firestore/user";
-
-// TODO: Read all the code and verify that each Promise use an await keyword. Because the cloud functions kills the threads if ends before each thread ends.
 
 // The Firebase Admin SDK to access Firestore.
 admin.initializeApp();
@@ -377,14 +374,13 @@ exports.onCreateMessages = firestore.document(listenMessagesCollection)
             await createANewConversation(userIDB, newConversationB);
         }
 
-        // Update the last message of each user
-        // TODO: Creating the last message is not creating the conversation in the database.
+        // Update the `last message of each user
 
         const createLastMessage = (messageStateEnum: MessageStateEnum, acumalativeMessages: number = 0) => {
             const date = admin.firestore.FieldValue.serverTimestamp();
             return LastMessage.fromParameters(
                 currentMessage.messageType,
-                new MessageState(messageStateEnum),
+                new MessageState({ type: messageStateEnum }),
                 date,
                 currentMessage.data,
                 acumalativeMessages,
@@ -416,7 +412,7 @@ exports.onCreateMessages = firestore.document(listenMessagesCollection)
     Examples: 
     https://firebase.google.com/docs/functions/get-started#review_complete_sample_code
 */
-
+/*
 const idConversation = 'idConversation';
 const tes1 = 'test1';
 const tes2 = 'test2';
@@ -443,4 +439,4 @@ exports.addMessageConversation = functions.https.onRequest(async (_, res) => {
     await addNewMessage(admin.firestore(), idConversation, Message.forTesting(tes1));
 
     res.send('Add message done');
-});
+});*/

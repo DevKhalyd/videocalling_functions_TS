@@ -79,14 +79,13 @@ async function updateLastMessage(
     lastMessage: LastMessage,
 ): Promise<boolean> {
     try {
-        // TODO: Error could be from here
         await firestore.collection(usersCollection)
             .doc(userID)
             .collection(conversationsCollection)
-            .doc(conversartionId).set({ lastMessage: lastMessage });
+            .doc(conversartionId)
+            .update({ lastMessage: lastMessage.toJSON() });
         return true;
     } catch (error) {
-        console.log(error);
         return false;
     }
 }
