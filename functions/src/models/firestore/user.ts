@@ -1,3 +1,5 @@
+import { image } from "../../utils/utils";
+
 export default class User {
 
     readonly imageUrl: string | undefined;
@@ -11,18 +13,18 @@ export default class User {
      * @param o The json object
      */
     constructor(o: any) {
-        this.imageUrl = o.imageUrl;
         this.fullname = o.fullname;
         this.username = o.username;
         this.tokenFCM = o.tokenFCM;
+        this.imageUrl = o.imageUrl;
     }
 
     toJSON(): any {
         return {
-            imageUrl: this.imageUrl,
             fullname: this.fullname,
             username: this.username,
-            tokenFCM: this.tokenFCM
+            tokenFCM: this.tokenFCM ?? '',
+            imageUrl: this.imageUrl ?? image,
         };
     }
 

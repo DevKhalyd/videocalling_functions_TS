@@ -1,3 +1,4 @@
+import { getRandomInt } from "../../utils/utils";
 import MessageState, { MessageStateEnum } from "./message_state";
 import MessageType, { MessageTypeEnum } from "./message_type";
 
@@ -57,17 +58,28 @@ export default class Message {
         return new Message(o);
     }
 
-    static forTesting() {
-        /// NOTE: I can state for each function
+    //https://stackoverflow.com/a/42108988/10942018 Named paremters
+
+    static forTesting(id: string, data: string | undefined = undefined,) {
+
+        const words = ["Hello", "Whow are you?", "Wasyp", 'Thatss ok', ":D"];
+
+        const types = [MessageTypeEnum.Text, MessageTypeEnum.Image, MessageTypeEnum.Audio];
+
+        const states = [MessageStateEnum.Sent, MessageStateEnum.Seen, MessageStateEnum.Delivered];
+
+        if (!data)
+            data = words[getRandomInt(words.length)];
+
         return new Message({
-            idUser: "123",
+            idUser: id,
             messageType: {
-                type: MessageTypeEnum.Text,
+                type: types[getRandomInt(types.length)],
             },
             messageState: {
-                type: MessageStateEnum.Delivered,
+                type: states[getRandomInt(states.length)],
             },
-            data: "Hello",
+            data: data,
         });
     }
 

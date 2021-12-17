@@ -310,6 +310,7 @@ exports.onCreateMessages = firestore.document(listenMessagesCollection)
         */
         const idUser = currentMessage.idUser;
 
+        /// Just verify if the user who send the message is in the conversation, otherwise something is wrong
         if (!existsInArray(idUser, idsUser)) return zero(`The idUser ${idUser} is not in the array ${idsUser}`);
 
         // Ids of each user
@@ -377,6 +378,7 @@ exports.onCreateMessages = firestore.document(listenMessagesCollection)
         }
 
         // Update the last message of each user
+        // TODO: Creating the last message is not creating the conversation in the database.
 
         const createLastMessage = (messageStateEnum: MessageStateEnum, acumalativeMessages: number = 0) => {
             const date = admin.firestore.FieldValue.serverTimestamp();
@@ -385,7 +387,8 @@ exports.onCreateMessages = firestore.document(listenMessagesCollection)
                 new MessageState(messageStateEnum),
                 date,
                 currentMessage.data,
-                acumalativeMessages);
+                acumalativeMessages,
+            );
         };
 
         let acumalativeMessagesForUserA = 0;
@@ -421,7 +424,7 @@ const idsUser = [tes1, tes2];
 
 //https://firebase.google.com/docs/functions/firestore-events#define_a_function_trigger
 
-exports.setup = functions.https.onRequest(async (req, res) => {
+exports.setup = functions.https.onRequest(async (_, res) => {
 
     const adminFirestore = admin.firestore();
 
@@ -437,8 +440,7 @@ exports.setup = functions.https.onRequest(async (req, res) => {
 
 exports.addMessageConversation = functions.https.onRequest(async (_, res) => {
 
-
-    await addNewMessage(admin.firestore(), idConversation, Message.forTesting());
+    await addNewMessage(admin.firestore(), idConversation, Message.forTesting(tes1));
 
     res.send('Add message done');
 });

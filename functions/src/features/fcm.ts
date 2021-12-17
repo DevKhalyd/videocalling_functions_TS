@@ -1,9 +1,7 @@
 import { messaging } from "firebase-admin";
 import { logger } from "firebase-functions/v1";
-import { messageNotificationDuration, videocallingNotificationDurationMs } from "../utils/utils";
+import { image, messageNotificationDuration, videocallingNotificationDurationMs } from "../utils/utils";
 
-/// Transform to an image with background color with cloud functions
-const _image = 'https://lacollege.edu/wp-content/uploads/2021/09/blank-profile-picture.png';
 
 /**
  * @param {string} token - FCM token provided by the Call object
@@ -24,7 +22,7 @@ function sendVideoCallNotification(
     const data = {
         idVideocall,
         username,
-        image: imageUrl ?? _image,
+        image: imageUrl ?? image,
     }
 
     const android: messaging.AndroidConfig = {
@@ -71,7 +69,7 @@ async function sendMessageNotification(
     const data = {
         fullname,
         message,
-        image: imageUrl ?? _image,
+        image: imageUrl ?? image,
     }
 
     const android: messaging.AndroidConfig = {

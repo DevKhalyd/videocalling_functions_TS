@@ -8,6 +8,13 @@ Last part. Test the server against IOS devices.
 
 # Fast Testing
 
+http://localhost:5001/videocalling-flutter-26813/us-central1/setup
+
+**Use when a host is specified**
+http://192.168.1.67:5001/videocalling-flutter-26813/us-central1/setup
+
+http://192.168.1.67:5001/videocalling-flutter-26813/us-central1/addMessageConversation
+
 ```ts
 // http://localhost:5001/videocalling-flutter-26813/us-central1/test
 // Take the text parameter passed to this HTTP endpoint and insert it into

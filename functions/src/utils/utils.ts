@@ -28,6 +28,11 @@ const videocallingNotificationDurationMs = 0;
  */
 const messageNotificationDuration = 3600;
 
+
+
+/// Image to show in the notification by default
+const image = 'https://lacollege.edu/wp-content/uploads/2021/09/blank-profile-picture.png';
+
 /**
  * Use to get the historyCalls path and do some actions on it
  * 
@@ -42,6 +47,22 @@ function existsInArray(element: string, array: string[]): boolean {
     return array.indexOf(element) > -1;
 }
 
+/**
+ * Gets random int.
+ * 
+ * Example:
+ * 
+ * console.log(getRandomInt(3));
+ * expected output: 0, 1 or 2
+ * 
+ * @param max The limit to get the random number
+ * @returns {number}  The random number
+ */
+function getRandomInt(max: number) {
+    if (max < 1) throw new Error(`The number must be greater than 0`);
+    return Math.floor(Math.random() * max);
+}
+
 export {
     usersCollection,
     usernamesUnavaibleCollection,
@@ -50,6 +71,8 @@ export {
     conversationsCollection,
     messagesCollection,
     messageNotificationDuration,
+    image,
     getHistoryCollection,
-    existsInArray
+    existsInArray,
+    getRandomInt
 }

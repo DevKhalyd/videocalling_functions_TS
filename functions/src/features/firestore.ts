@@ -5,7 +5,8 @@ import Conversation from "../models/firestore/conversation";
 import User from "../models/firestore/user";
 import { conversationsCollection, messagesCollection, usersCollection } from "../utils/utils";
 
-// NOTE: As the functions increases in size I think its necessary a change, for example a singleton pattern
+// TODO: As the functions increases in size I think its necessary a change, for example a singleton pattern
+// Use the admin.firestore() function to get a Firestore instance. Necessary to create a singleton pattern
 
 
 /**
@@ -78,12 +79,14 @@ async function updateLastMessage(
     lastMessage: LastMessage,
 ): Promise<boolean> {
     try {
+        // TODO: Error could be from here
         await firestore.collection(usersCollection)
             .doc(userID)
             .collection(conversationsCollection)
             .doc(conversartionId).set({ lastMessage: lastMessage });
         return true;
     } catch (error) {
+        console.log(error);
         return false;
     }
 }
@@ -155,7 +158,7 @@ async function createNewConversation(
 ) {
     await firestore.collection(conversationsCollection).doc(id).set({
         id,
-        idsUser
+        idsUser,
     });
 }
 
