@@ -11,9 +11,9 @@ Last part. Test the server against IOS devices.
 http://localhost:5001/videocalling-flutter-26813/us-central1/setup
 
 **Use when a host is specified**
-http://192.168.1.67:5001/videocalling-flutter-26813/us-central1/setup
+http://192.168.1.68:5001/videocalling-flutter-26813/us-central1/setup
 
-http://192.168.1.67:5001/videocalling-flutter-26813/us-central1/addMessageConversation
+http://192.168.1.68:5001/videocalling-flutter-26813/us-central1/addMessageConversation
 
 ```ts
 // http://localhost:5001/videocalling-flutter-26813/us-central1/test
@@ -24,13 +24,33 @@ exports.test = functions.https.onRequest(async (_, res) => {
 });
 ```
 
-# Errors
+# Common Errors
 
-Test Firebase Auth Services:
+## Setting your own host for testing
 
-//https://stackoverflow.com/questions/67173476/firebase-emulator-with-real-devices
+https://stackoverflow.com/a/67173872/10942018
 
 When uses real devices you need to put the complete address of your host.
+
+**Example**
+
+```json
+
+"emulators": {
+    "auth": {
+      "host": "192.168.1.68",
+      "port": 9099
+    },
+    "functions": {
+      "host": "192.168.1.68",
+      "port": 5001
+    },
+    "firestore": {
+      "host": "192.168.1.68",
+      "port": 8080
+    },
+ }
+```
 
 # VideoCallingFunctions TS
 
