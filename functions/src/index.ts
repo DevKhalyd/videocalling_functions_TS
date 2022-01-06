@@ -19,6 +19,7 @@ import { createConversation, getAcumulativeMessages, getConversationByID, getUse
 import Conversation from "./models/firestore/conversation";
 import LastMessage from "./models/fcm/last_message";
 import MessageState, { MessageStateEnum } from "./models/fcm/message_state";
+import { MessageTypeEnum } from "./models/fcm/message_type";
 
 // The Firebase Admin SDK to access Firestore.
 admin.initializeApp();
@@ -263,6 +264,16 @@ exports.onCreateMessages = firestore.document(listenMessagesCollection)
             return 0;
         };
 
+        /** 
+          The new message sent (created) in this conversation
+        */
+        const currentMessage = new Message(snap.data());
+
+        if (currentMessage.messageType.type == MessageTypeEnum.InitialMessage) {
+            logger.info(`The message is an InitialMessage. It will not be updated in the last Message`);
+            return 0;
+        }
+
         const firestore = snap.ref.firestore;
 
         // Get the parent of this collection
@@ -296,11 +307,6 @@ exports.onCreateMessages = firestore.document(listenMessagesCollection)
         const idsUser = data.idsUser as string[] | undefined;
 
         if (idsUser?.length !== 2 || !idConversation) return zero(`Data not work properly. IDSUSER: ${idsUser} - ID: ${idConversation}`);
-
-        /** 
-            The new message sent (created) in this conversation
-        */
-        const currentMessage = new Message(snap.data());
 
         /**
             The id of the user who send the message.

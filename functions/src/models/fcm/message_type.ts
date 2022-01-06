@@ -1,4 +1,5 @@
 enum MessageTypeEnum {
+    InitialMessage = -1,
     Text,
     Image,
     Audio,
